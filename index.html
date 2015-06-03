@@ -45,8 +45,19 @@
           </template>
         </select>
       </p>
-      <p><label>Name:</label><input type="text" value="{{name::input}}"></p>
-      <template is="dom-repeat" items="{{data.objects}}" as='pokemon' filter="{{_filter(type, name)}}">
+      <p>
+        <label>Name:</label>
+        <input type="text" value="{{name::input}}">
+      </p>
+      <p>
+        <label>Sort:</label>
+        <button on-click="sortName">Name</button>
+        <button on-click="sortHeight">Height</button>
+        <button on-click="sortWeight">Weight</button>
+        <button on-click="sortAttack">Attack</button>
+        <button on-click="sortDefense">Defense</button>
+      </p>
+      <template is="dom-repeat" items="{{data.objects}}" as='pokemon' filter="{{_filter(type, name)}}" sort="{{_sort(sortObj)}}">
         <pokemon-card pokemon="{{pokemon}}" data-index='{{index}}'></pokemon-card>
       </template>
     </template>
@@ -58,6 +69,7 @@
   el.type = 'all';
   el.name = '';
   el.types = ['all'];
+  el.sortObj = {};
   el._getTypes = function(event, resObj) {
     if (!resObj || !resObj.response || !Array.isArray(resObj.response.objects)) return;
     resObj.response.objects.forEach(function(obj) {
@@ -76,6 +88,104 @@
       if (!type || type === 'all') return advFilter(true, val);
       return advFilter(val.types[0].name.toLowerCase() === type, val);
     };
+  };
+  el.sortName = function() {
+    var type = 'name';
+    this.sortObj = {
+      type: type,
+      order: this.sortObj.type !== type ? 'ASC' : (this.sortObj.order === 'DESC' ? 'ASC' : 'DESC')
+    };
+  };
+  el.sortHeight = function() {
+    var type = 'height';
+    this.sortObj = {
+      type: type,
+      order: this.sortObj.type !== type ? 'DESC' : (this.sortObj.order === 'ASC' ? 'DESC' : 'ASC')
+    };
+  };
+  el.sortWeight = function() {
+    var type = 'weight';
+    this.sortObj = {
+      type: type,
+      order: this.sortObj.type !== type ? 'DESC' : (this.sortObj.order === 'ASC' ? 'DESC' : 'ASC')
+    };
+  };
+  el.sortAttack = function() {
+    var type = 'attack';
+    this.sortObj = {
+      type: type,
+      order: this.sortObj.type !== type ? 'DESC' : (this.sortObj.order === 'ASC' ? 'DESC' : 'ASC')
+    };
+  };
+  el.sortDefense = function() {
+    var type = 'defense';
+    this.sortObj = {
+      type: type,
+      order: this.sortObj.type !== type ? 'DESC' : (this.sortObj.order === 'ASC' ? 'DESC' : 'ASC')
+    };
+  };
+  el._sort = function(sortObj) {
+    var type  = sortObj.type;
+    var order = sortObj.order;
+    switch(type) {
+      case 'name':
+        return function(a, b) {
+          var swap;
+          if (order === 'DESC') {
+            swap = a;
+            a = b;
+            b = swap;
+          }
+          if (a.name === b.name) return 0;
+          return a.name < b.name ? -1 : 1;
+        };
+      case 'height':
+        return function(a, b) {
+          var swap;
+          if (order === 'DESC') {
+            swap = a;
+            a = b;
+            b = swap;
+          }
+          if (a.height === b.height) return 0;
+          return b.height - a.height;
+        };
+      case 'weight':
+        return function(a, b) {
+          var swap;
+          if (order === 'DESC') {
+            swap = a;
+            a = b;
+            b = swap;
+          }
+          if (a.weight === b.weight) return 0;
+          return b.weight - a.weight;
+        };
+      case 'attack':
+        return function(a, b) {
+          var swap;
+          if (order === 'DESC') {
+            swap = a;
+            a = b;
+            b = swap;
+          }
+          if (a.attack === b.attack) return 0;
+          return b.attack - a.attack;
+        };
+      case 'defense':
+        return function(a, b) {
+          var swap;
+          if (order === 'DESC') {
+            swap = a;
+            a = b;
+            b = swap;
+          }
+          if (a.defense === b.defense) return 0;
+          return b.defense - a.defense;
+        };
+      default:
+        return function() { return 0 };
+    }
   };
 </script>
 
